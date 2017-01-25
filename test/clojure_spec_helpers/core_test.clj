@@ -34,4 +34,17 @@
     (s/def :extract/map-opt-only (s/keys :opt [:extract/c :extract/d]))
     (let [out (extract-spec-keys :extract/map-opt-only)]
       (is (= [:extract/c :extract/d] (:opt out)))
-      (is (empty? (:req out))))))
+      (is (empty? (:req out)))))
+  (testing "should extract req and opt keys from a keys form nested inside an and form"
+    (s/def :extract/keys-inside-and (s/and (s/keys :req [:extract/a :extract/b]
+                                                   :opt [:extract/c :extract/d])))
+    (let [out (extract-spec-keys :extract/keys-inside-and)]
+      (is (= [:extract/a :extract/b] (:req out)))
+      (is (= [:extract/c :extract/d] (:opt out)))))
+  (testing "should extract req and opt keys from a merge form"
+    (s/def ::x (s/keys :req [:x/x] :opt [:x/xx]))
+    (s/def ::y (s/merge ::x
+                        (s/keys :req [:y/y] :opt [:y/yy])))
+    (let [out (extract-spec-keys ::y)]
+      (is (= [:x/x :y/y] (:req out)))
+      (is (= [:x/xx :y/yy] (:opt out))))))
