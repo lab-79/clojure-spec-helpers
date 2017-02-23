@@ -40,8 +40,15 @@
       (:args out))
 
     ::coll-form
-    (let [out (s/conform ::coll-form spec-form)]
-      (extract-spec-keys (-> out :member-type :spec-name)))
+    (let [out (s/conform ::coll-form spec-form)
+          member-type (:member-type out)]
+      ;(extract-spec-keys (-> out :member-type :spec-name))
+      (condp = (first member-type)
+        :spec-name (extract-spec-keys (second member-type))
+        :spec-form (spec->spec-keys (second member-type))
+        ; else
+        (throw (ex-info "The spec should generate a map or collection of maps."
+                        {:spec spec-form}))))
 
     ::and-form
     (let [out (s/conform ::and-form spec-form)

@@ -39,13 +39,25 @@
     (let [out (extract-spec-keys :extract/map-opt-only)]
       (is (= [:extract/c :extract/d] (:opt out)))
       (is (empty? (:req out)))))
-  (testing "should extract req and opt keys from a keys form nested inside an and form"
+  (testing "should extract req and opt keys from a 'keys form nested inside an 'and form"
     (s/def :extract/keys-inside-and (s/and (s/keys :req [:extract/a :extract/b]
                                                    :opt [:extract/c :extract/d])))
     (let [out (extract-spec-keys :extract/keys-inside-and)]
       (is (= [:extract/a :extract/b] (:req out)))
       (is (= [:extract/c :extract/d] (:opt out)))))
-  (testing "should extract req and opt keys from a merge form"
+  (testing "should extract req and opt keys from a 'keys form inside an 'every form"
+    (s/def :extract/keys-inside-coll (s/coll-of (s/keys :req [:extract/a :extract/b]
+                                                        :opt [:extract/c :extract/d])))
+    (let [out (extract-spec-keys :extract/keys-inside-coll)]
+      (is (= [:extract/a :extract/b] (:req out)))
+      (is (= [:extract/c :extract/d] (:opt out)))))
+  (testing "should extract req and opt keys from inside an 'every form"
+    (s/def :extract/map-req-opt (s/keys :req [:extract/a :extract/b] :opt [:extract/c :extract/d]))
+    (s/def :extract/implicit-keys-inside-coll (s/coll-of :extract/map-req-opt))
+    (let [out (extract-spec-keys :extract/implicit-keys-inside-coll)]
+      (is (= [:extract/a :extract/b] (:req out)))
+      (is (= [:extract/c :extract/d] (:opt out)))))
+  (testing "should extract req and opt keys from a 'merge form"
     (s/def ::x (s/keys :req [:x/x] :opt [:x/xx]))
     (s/def :x/x keyword?)
     (s/def :x/xx keyword?)
