@@ -2,14 +2,14 @@
   (:require #?(:clj [clojure.spec :as s]
                :cljs [cljs.spec :as s])))
 
-(s/def ::spec-name keyword?)
+(s/def ::spec-name (s/and keyword? #(contains? (s/registry) %)))
 
 (s/def ::req (s/coll-of ::spec-name :kind vector?))
 
 (s/def ::opt (s/coll-of ::spec-name :kind vector?))
 
 (s/def ::keys-form (s/cat :macro #{'keys}
-                         :args (s/keys* :opt-un [::req ::opt])))
+                          :args (s/keys* :opt-un [::req ::opt])))
 
 (s/def ::coll-form (s/cat :macro #{'every}
                           :member-type (s/alt :spec-name ::spec-name
@@ -31,6 +31,7 @@
 (s/fdef spec->spec-keys
         :args (s/cat :spec seq?)
         :ret (s/keys :opt-un [::req ::opt]))
+; TODO We don't have a nice way to catch when a :req or :opt key is missing in this fn
 (defn spec->spec-keys
   [spec-form]
   (condp s/valid? spec-form
