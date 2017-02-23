@@ -1,5 +1,5 @@
 (ns lab79.clojure-spec-helpers
-  (:require #?(:clj  [clojure.spec :as s]
+  (:require #?(:clj [clojure.spec :as s]
                :cljs [cljs.spec :as s])))
 
 (s/def ::spec-name keyword?)
