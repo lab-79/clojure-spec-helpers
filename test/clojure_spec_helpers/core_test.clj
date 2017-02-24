@@ -44,7 +44,30 @@
                                                    :opt [:extract/c :extract/d])))
     (let [out (extract-spec-keys :extract/keys-inside-and)]
       (is (= [:extract/a :extract/b] (:req out)))
-      (is (= [:extract/c :extract/d] (:opt out)))))
+      (is (= [:extract/c :extract/d] (:opt out))))
+    (testing "multiple 'keys forms"
+      (s/def :extract/mult-keys-inside-and (s/and (s/keys :req [:extract/a]
+                                                          :opt [:extract/b])
+                                                  (s/keys :req [:extract/c]
+                                                          :opt [:extract/d])))
+      (let [out (extract-spec-keys :extract/mult-keys-inside-and)]
+        (is (= [:extract/a :extract/c] (:req out)))
+        (is (= [:extract/b :extract/d] (:opt out)))))
+    (testing "heterogeneous with single 'keys (as not the first element)"
+      (s/def :extract/single-buried-keys-inside-and (s/and map?
+                                                           (s/keys :req [:extract/a]
+                                                                   :opt [:extract/b])))
+      (let [out (extract-spec-keys :extract/single-buried-keys-inside-and)]
+        (is (= [:extract/a] (:req out)))
+        (is (= [:extract/b] (:opt out)))))
+    (testing "heterogeneous 'keys and spec-name inside an 'and"
+      (s/def :extract/keys-and-spec-name-inside-and (s/and map?
+                                                           :x/keys
+                                                           (s/keys :req [:extract/a]
+                                                                   :opt [:extract/b])))
+      (let [out (extract-spec-keys :extract/keys-and-spec-name-inside-and)]
+        (is (= [:x/a :extract/a] (:req out)))
+        (is (= [:x/b :extract/b] (:opt out))))))
   (testing "should extract req and opt keys from a 'keys form inside an 'every form"
     (s/def :extract/keys-inside-coll (s/coll-of (s/keys :req [:extract/a :extract/b]
                                                         :opt [:extract/c :extract/d])))

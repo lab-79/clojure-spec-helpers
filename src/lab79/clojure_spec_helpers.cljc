@@ -17,9 +17,10 @@
                                               :pred symbol?)
                           :rest (s/* any?)))
 
-(s/def ::and-form (s/cat ::macro #{'and}
-                         :first-form any?
-                         :rest (s/* any?)))
+(s/def ::and-form (s/cat :macro #{'and}
+                         :rest (s/+ (s/or :spec-name ::spec-name
+                                          :keys-form ::keys-form
+                                          :pred symbol?))))
 
 (s/def ::merge-desc (s/cat :macro #{'merge}
                            ;rest (s/+ any?)
@@ -52,8 +53,20 @@
 
     ::and-form
     (let [out (s/conform ::and-form spec-form)
-          first-form (:first-form out)]
-      (spec->spec-keys first-form))
+          rest (-> out :rest)]
+      (reduce (fn [spec-keys [type conformed]]
+                (condp = type
+                  :spec-name (let [{:keys [req opt]} (spec->spec-keys (s/describe conformed))]
+                               (-> spec-keys
+                                   (update :req into req)
+                                   (update :opt into opt)))
+                  :keys-form (let [{:keys [req opt]} (:args conformed)]
+                               (-> spec-keys
+                                   (update :req into req)
+                                   (update :opt into opt)))
+                  :pred spec-keys))
+              {:req [] :opt []}
+              rest))
 
     ::merge-desc
     (let [out (s/conform ::merge-desc spec-form)
