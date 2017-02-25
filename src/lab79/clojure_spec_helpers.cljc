@@ -14,7 +14,8 @@
 (s/def ::coll-form (s/cat :macro #{'every}
                           :member-type (s/alt :spec-name ::spec-name
                                               :spec-form list?
-                                              :pred symbol?)
+                                              :pred symbol?
+                                              :set set?)
                           :rest (s/* any?)))
 
 (s/def ::and-form (s/cat :macro #{'and}
