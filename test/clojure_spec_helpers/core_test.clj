@@ -67,7 +67,14 @@
                                                                    :opt [:extract/b])))
       (let [out (extract-spec-keys :extract/keys-and-spec-name-inside-and)]
         (is (= [:x/a :extract/a] (:req out)))
-        (is (= [:x/b :extract/b] (:opt out))))))
+        (is (= [:x/b :extract/b] (:opt out)))))
+    (testing "heterogeneous 'keys and anon fn pred inside an 'and"
+      (s/def :extract/keys-and-fn-inside-and (s/and (fn [x] true)
+                                                    (s/keys :req [:extract/a]
+                                                            :opt [:extract/b])))
+      (let [out (extract-spec-keys :extract/keys-and-fn-inside-and)]
+        (is (= [:extract/a] (:req out)))
+        (is (= [:extract/b] (:opt out))))))
   (testing "should extract req and opt keys from a 'keys form inside an 'every form"
     (s/def :extract/keys-inside-coll (s/coll-of (s/keys :req [:extract/a :extract/b]
                                                         :opt [:extract/c :extract/d])))

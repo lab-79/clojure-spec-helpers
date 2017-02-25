@@ -20,7 +20,9 @@
 (s/def ::and-form (s/cat :macro #{'and}
                          :rest (s/+ (s/or :spec-name ::spec-name
                                           :keys-form ::keys-form
-                                          :pred symbol?))))
+                                          :pred symbol?
+                                          :quoted-fn (s/cat :fn #{'fn}
+                                                            :rest (s/+ any?))))))
 
 (s/def ::merge-desc (s/cat :macro #{'merge}
                            ;rest (s/+ any?)
@@ -64,6 +66,7 @@
                                (-> spec-keys
                                    (update :req into req)
                                    (update :opt into opt)))
+                  :quoted-fn spec-keys
                   :pred spec-keys))
               {:req [] :opt []}
               rest))
