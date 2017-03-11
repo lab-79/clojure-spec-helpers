@@ -1,6 +1,7 @@
 (ns lab79.clojure-spec-helpers
-  (:require #?(:clj [clojure.spec :as s]
-               :cljs [cljs.spec :as s])))
+  (:require [clojure.spec :as s]
+            [clojure.test.check.generators :as gen :refer [generator?]]
+            [clojure.pprint :refer [pprint]]))
 
 (s/def ::spec-name (s/and keyword? #(contains? (s/registry) %)))
 
@@ -98,8 +99,12 @@
            (apply merge-with into)))
 
     ;else
-    (throw (ex-info "The spec should generate a map or collection of maps."
-                    {:spec spec-form}))))
+    (do
+      (if (= 'keys (first spec-form))
+        (throw (ex-info "Keys spec fails"
+                        {:explain-data (s/explain-data ::keys-form spec-form)})))
+      (throw (ex-info "The spec should generate a map or collection of maps."
+                      {:spec spec-form})))))
 
 (s/fdef extract-spec-keys
         :args (s/cat :spec-name ::spec-name)
