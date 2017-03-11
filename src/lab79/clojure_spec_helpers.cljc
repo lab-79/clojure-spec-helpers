@@ -102,7 +102,8 @@
     (do
       (if (= 'keys (first spec-form))
         (throw (ex-info "Keys spec fails"
-                        {:explain-data (s/explain-data ::keys-form spec-form)})))
+                        {:spec-form spec-form
+                         :explain-data (s/explain-data ::keys-form spec-form)})))
       (throw (ex-info "The spec should generate a map or collection of maps."
                       {:spec spec-form})))))
 
