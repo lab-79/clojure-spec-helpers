@@ -26,9 +26,12 @@
                                                             :rest (s/+ any?))))))
 
 (s/def ::merge-desc (s/cat :macro #{'merge}
-                           ;rest (s/+ any?)
                            :rest (s/+ (s/alt :spec-name keyword?
                                              :spec-desc list?))))
+
+(s/def ::or-desc (s/cat :macro #{'or}
+                        :rest (s/+ (s/cat :tag keyword?
+                                          :spec ::desc))))
 
 (declare extract-spec-keys)
 
