@@ -4,12 +4,19 @@
 
 (s/def ::spec-name (s/and keyword? #(contains? (s/registry) %)))
 
-(s/def ::req (s/coll-of ::spec-name :kind vector?))
-
-(s/def ::opt (s/coll-of ::spec-name :kind vector?))
+(s/def ::desc (s/or :spec-name ::spec-name
+                    :keys-form ::keys-form
+                    :coll-form ::coll-form
+                    :and-form ::and-form
+                    :merge-desc ::merge-desc
+                    :or-desc ::or-desc))
 
 (s/def ::keys-form (s/cat :macro #{'keys}
                           :args (s/keys* :opt-un [::req ::opt])))
+
+(s/def ::req (s/coll-of ::spec-name :kind vector?))
+
+(s/def ::opt (s/coll-of ::spec-name :kind vector?))
 
 (s/def ::coll-form (s/cat :macro #{'every}
                           :member-type (s/alt :spec-name ::spec-name
@@ -49,7 +56,6 @@
     ::coll-form
     (let [out (s/conform ::coll-form spec-form)
           member-type (:member-type out)]
-      ;(extract-spec-keys (-> out :member-type :spec-name))
       (condp = (first member-type)
         :spec-name (extract-spec-keys (second member-type))
         :spec-form (spec->spec-keys (second member-type))
