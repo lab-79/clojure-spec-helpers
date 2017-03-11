@@ -40,6 +40,12 @@
                         :rest (s/+ (s/cat :tag keyword?
                                           :spec ::desc))))
 
+(s/def ::gen-overrides (s/? (s/map-of ::spec-name
+                                      ::gfn)))
+(s/def ::gfn (s/fspec :args (s/cat)
+                      :ret generator?
+                      :fn #(empty? (:args %))))
+
 (declare extract-spec-keys)
 
 (s/fdef spec->spec-keys
@@ -112,3 +118,19 @@
       (and (coll? spec) (= 'keys (first spec)))
       (and (coll? spec) (= 'every (first spec)) (is-keys-spec? (second spec)))
       (and (coll? spec) (= 'and (first spec)) (is-keys-spec? (second spec))))))
+
+(s/fdef generates-map-or-coll-of-maps?
+        :args (s/cat :spec-name ::spec-name
+                     :gen-overrides ::gen-overrides)
+        :ret boolean?)
+(defn generates-map-or-coll-of-maps?
+  [spec-name gen-overrides]
+  (let [data (gen/generate (s/gen spec-name gen-overrides))]
+    (or (map? data)
+        (and (coll? data)
+             ; s/every with no :min-count may generate an empty coll, so
+             ; make sure we generate a coll with at least cardinality 1
+             (let [coll-with-1+ (gen/generate (s/gen (s/and spec-name
+                                                            seq)
+                                                     gen-overrides))]
+               (map? (first coll-with-1+)))))))
