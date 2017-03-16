@@ -17,7 +17,9 @@
     (s/def :x/keys (s/keys :req [:x/a] :opt [:x/b]))
     (is (true? (is-keys-spec? :x/keys)))
     (s/def :x/alias-keys :x/keys)
-    (is (true? (is-keys-spec? :x/alias-keys)))))
+    (is (true? (is-keys-spec? :x/alias-keys)))
+    (s/def :x/merged (s/merge :s/keys (s/keys :req [:x/a])))
+    (is (true? (is-keys-spec? :x/merged)))))
 
 (deftest test-extract-spec-keys
   (testing "should extract req and opt keys for a spec with both req and opt keys"
