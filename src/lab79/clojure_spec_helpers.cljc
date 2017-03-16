@@ -19,7 +19,7 @@
 
 (s/def ::opt (s/coll-of ::spec-name :kind vector?))
 
-(s/def ::coll-form (s/cat :macro #{'every}
+(s/def ::coll-form (s/cat :macro #{'coll-of}
                           :member-type (s/alt :spec-name ::spec-name
                                               :spec-form list?
                                               :pred symbol?
@@ -122,16 +122,18 @@
   (let [spec (s/describe spec-name)]
     (or
       (and (coll? spec) (= 'keys (first spec)))
-      (and (coll? spec) (= 'every (first spec)) (and
-                                                  (s/valid? ::spec-name
-                                                            (second spec))
-                                                  (is-keys-spec? (second
-                                                                   spec))))
-      (and (coll? spec) (= 'and (first spec)) (and
-                                                (s/valid? ::spec-name
-                                                          (second spec))
-                                                (is-keys-spec? (second
-                                                                 spec)))))))
+      (and (coll? spec) (= 'coll-of (first spec))
+           (s/valid? ::spec-name (second spec))
+           (is-keys-spec? (second spec)))
+      (and (coll? spec) (= 'every (first spec))
+           (s/valid? ::spec-name (second spec))
+           (is-keys-spec? (second spec)))
+      (and (coll? spec) (= 'and (first spec))
+           (s/valid? ::spec-name (second spec))
+           (is-keys-spec? (second spec)))
+      (and (coll? spec) (= 'merge (first spec))
+           (s/valid? ::spec-name (second spec))
+           (is-keys-spec? (second spec))))))
 
 (s/fdef generates-map-or-coll-of-maps?
         :args (s/cat :spec-name ::spec-name
