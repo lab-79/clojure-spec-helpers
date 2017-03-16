@@ -122,8 +122,16 @@
   (let [spec (s/describe spec-name)]
     (or
       (and (coll? spec) (= 'keys (first spec)))
-      (and (coll? spec) (= 'every (first spec)) (is-keys-spec? (second spec)))
-      (and (coll? spec) (= 'and (first spec)) (is-keys-spec? (second spec))))))
+      (and (coll? spec) (= 'every (first spec)) (and
+                                                  (s/valid? ::spec-name
+                                                            (second spec))
+                                                  (is-keys-spec? (second
+                                                                   spec))))
+      (and (coll? spec) (= 'and (first spec)) (and
+                                                (s/valid? ::spec-name
+                                                          (second spec))
+                                                (is-keys-spec? (second
+                                                                 spec)))))))
 
 (s/fdef generates-map-or-coll-of-maps?
         :args (s/cat :spec-name ::spec-name
