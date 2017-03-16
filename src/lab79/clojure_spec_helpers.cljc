@@ -120,20 +120,18 @@
 (defn is-keys-spec?
   [spec-name]
   (let [spec (s/describe spec-name)]
-    (or
-      (and (coll? spec) (= 'keys (first spec)))
-      (and (coll? spec) (= 'coll-of (first spec))
-           (s/valid? ::spec-name (second spec))
-           (is-keys-spec? (second spec)))
-      (and (coll? spec) (= 'every (first spec))
-           (s/valid? ::spec-name (second spec))
-           (is-keys-spec? (second spec)))
-      (and (coll? spec) (= 'and (first spec))
-           (s/valid? ::spec-name (second spec))
-           (is-keys-spec? (second spec)))
-      (and (coll? spec) (= 'merge (first spec))
-           (s/valid? ::spec-name (second spec))
-           (is-keys-spec? (second spec))))))
+    (and (coll? spec)
+      (condp = (first spec)
+        'keys true
+        'coll-of (and (s/valid? ::spec-name (second spec))
+                      (is-keys-spec? (second spec)))
+        'every   (and (s/valid? ::spec-name (second spec))
+                      (is-keys-spec? (second spec)))
+        'and     (and (s/valid? ::spec-name (second spec))
+                      (is-keys-spec? (second spec)))
+        'merge   (and (s/valid? ::spec-name (second spec))
+                      (is-keys-spec? (second spec)))
+        false))))
 
 (s/fdef generates-map-or-coll-of-maps?
         :args (s/cat :spec-name ::spec-name
