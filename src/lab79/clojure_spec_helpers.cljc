@@ -148,3 +148,9 @@
                                                             seq)
                                                      gen-overrides))]
                (map? (first coll-with-1+)))))))
+
+(s/fdef is-collection-spec?
+        :args (s/cat :spec-name ::spec-name)
+        :ret boolean?)
+(defn is-collection-spec? [spec-name]
+  (s/valid? ::coll-form (s/describe spec-name)))

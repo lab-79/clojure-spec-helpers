@@ -102,3 +102,9 @@
     (let [out (extract-spec-keys ::y)]
       (is (= [:x/x :y/y] (:req out)))
       (is (= [:x/xx :y/yy] (:opt out))))))
+
+(deftest test-is-collection-spec?
+  (testing "should return true for coll-of"
+    (s/def :x/a integer?)
+    (s/def :x/some-collection (s/coll-of :x/a))
+    (is (true? (is-collection-spec? :x/some-collection)))))
