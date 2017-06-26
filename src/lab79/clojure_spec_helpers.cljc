@@ -97,6 +97,18 @@
               {:req [] :opt []}
               rest))
 
+    ::or-desc
+    (let [out (s/conform ::or-desc spec-form)
+          rest (:rest out)]
+      (reduce (fn [spec-keys {:keys [tag spec]}]
+                (let [{:keys [req opt]} (spec->spec-keys
+                                          (s/describe (s/unform ::desc spec)))]
+                  (-> spec-keys
+                      (update :req into req)
+                      (update :opt into opt))))
+              {:req [] :opt []}
+              rest))
+
     ::merge-desc
     (let [out (s/conform ::merge-desc spec-form)
           rest (:rest out)]

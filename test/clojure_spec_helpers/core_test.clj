@@ -112,7 +112,19 @@
     (s/def :y/yy keyword?)
     (let [out (extract-spec-keys ::y)]
       (is (= [:x/x :y/y] (:req out)))
-      (is (= [:x/xx :y/yy] (:opt out))))))
+      (is (= [:x/xx :y/yy] (:opt out)))))
+
+  (testing "should extract req and opt keys from an 'or form"
+    (s/def :or-x/kw keyword?)
+    (s/def :or-y/kw keyword?)
+    (s/def :or-x/map (s/keys :req [:or-x/kw]))
+    (s/def :or-y/map (s/keys :req [:or-y/kw]))
+    (s/def :or/root
+      (s/or :or/x :or-x/map
+            :or/y :or-y/map))
+    (let [out (extract-spec-keys :or/root)]
+      (is (= [:or-x/kw :or-y/kw] (:req out)))
+      (is (= [] (:opt out))))))
 
 (deftest test-is-collection-spec?
   (testing "should return true for coll-of"
