@@ -100,9 +100,17 @@
     ::or-desc
     (let [out (s/conform ::or-desc spec-form)
           rest (:rest out)]
-      (reduce (fn [spec-keys {:keys [tag spec]}]
-                (let [{:keys [req opt]} (spec->spec-keys
-                                          (s/describe (s/unform ::desc spec)))]
+      (reduce (fn [spec-keys {[type spec-name-or-form] :spec}]
+                (let [{:keys [req opt]}
+                      (condp = type
+                        :spec-name (extract-spec-keys spec-name-or-form)
+                        (let [matching-spec (condp = type
+                                              :keys-form ::keys-form
+                                              :coll-form ::coll-form
+                                              :and-form ::and-form
+                                              :merge-desc ::merge-desc
+                                              :or-desc ::or-desc)]
+                          (spec->spec-keys (s/unform matching-spec spec-name-or-form))))]
                   (-> spec-keys
                       (update :req into req)
                       (update :opt into opt))))

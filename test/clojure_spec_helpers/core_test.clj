@@ -121,10 +121,11 @@
     (s/def :or-y/map (s/keys :req [:or-y/kw]))
     (s/def :or/root
       (s/or :or/x :or-x/map
-            :or/y :or-y/map))
+            :or/y :or-y/map
+            :or/form (s/keys :opt [:or-x/kw])))
     (let [out (extract-spec-keys :or/root)]
       (is (= [:or-x/kw :or-y/kw] (:req out)))
-      (is (= [] (:opt out))))))
+      (is (= [:or-x/kw] (:opt out))))))
 
 (deftest test-is-collection-spec?
   (testing "should return true for coll-of"
