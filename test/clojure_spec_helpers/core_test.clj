@@ -78,7 +78,18 @@
                                                             :opt [:extract/b])))
       (let [out (extract-spec-keys :extract/keys-and-fn-inside-and)]
         (is (= [:extract/a] (:req out)))
-        (is (= [:extract/b] (:opt out))))))
+        (is (= [:extract/b] (:opt out)))))
+
+    (testing "'merge and a 'comp predicate inside an 'and"
+      (s/def :extract/nested-keys-in-merge-in-and (s/and
+                                                    (s/merge
+                                                      :x/keys
+                                                      (s/keys :req [:extract/a]
+                                                              :opt [:extract/b]))
+                                                    (comp #{:a} :extract/a)))
+      (let [out (extract-spec-keys :extract/nested-keys-in-merge-in-and)]
+        (is (= [:x/a :extract/a] (:req out)))
+        (is (= [:x/b :extract/b] (:opt out))))))
   (testing "should extract req and opt keys from a 'keys form inside an 'every form"
     (s/def :extract/keys-inside-coll (s/coll-of (s/keys :req [:extract/a :extract/b]
                                                         :opt [:extract/c :extract/d])))

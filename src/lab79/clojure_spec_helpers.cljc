@@ -1,7 +1,6 @@
 (ns lab79.clojure-spec-helpers
   (:require [clojure.spec :as s]
-            [clojure.test.check.generators :as gen :refer [generator?]]
-            [clojure.pprint :refer [pprint]]))
+            [clojure.test.check.generators :as gen :refer [generator?]]))
 
 (s/def ::spec-name (s/and keyword? #(contains? (s/registry) %)))
 
@@ -29,9 +28,12 @@
 (s/def ::and-form (s/cat :macro #{'and}
                          :rest (s/+ (s/or :spec-name ::spec-name
                                           :keys-form ::keys-form
+                                          :merge-desc ::merge-desc
                                           :pred symbol?
                                           :quoted-fn (s/cat :fn #{'fn}
-                                                            :rest (s/+ any?))))))
+                                                            :rest (s/+ any?))
+                                          :comp-fn (s/cat :comp #{'comp}
+                                                          :rest (s/+ any?))))))
 
 (s/def ::merge-desc (s/cat :macro #{'merge}
                            :rest (s/+ (s/alt :spec-name keyword?
@@ -83,7 +85,14 @@
                                (-> spec-keys
                                    (update :req into req)
                                    (update :opt into opt)))
+                  :merge-desc (let [{:keys [req opt]}
+                                    (spec->spec-keys (s/unform ::merge-desc
+                                                               conformed))]
+                                (-> spec-keys
+                                    (update :req into req)
+                                    (update :opt into opt)))
                   :quoted-fn spec-keys
+                  :comp-fn spec-keys
                   :pred spec-keys))
               {:req [] :opt []}
               rest))
