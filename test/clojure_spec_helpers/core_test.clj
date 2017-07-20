@@ -23,6 +23,14 @@
     (s/def :x/coll-of-key-spec (s/coll-of :x/keys))
     (is (true? (is-keys-spec? :x/coll-of-key-spec)))))
 
+(deftest test-spec->spec-keys
+  (is (= [:a/y :a/z :b/x :b/y :b/z]
+         (spec->spec-keys '(or :a (keys :req [:a/y
+                                              :a/z])
+                               :b (keys :req [:b/x
+                                              :b/y
+                                              :b/z]))))))
+
 (deftest test-extract-spec-keys
   (testing "should extract req and opt keys for a spec with both req and opt keys"
     (s/def :extract/map-req-opt (s/keys :req [:extract/a :extract/b] :opt [:extract/c :extract/d]))
