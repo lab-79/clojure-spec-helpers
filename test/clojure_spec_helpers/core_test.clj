@@ -24,7 +24,12 @@
     (is (true? (is-keys-spec? :x/coll-of-key-spec)))))
 
 (deftest test-spec->spec-keys
-  (is (= [:a/y :a/z :b/x :b/y :b/z]
+  (s/def :a/y any?)
+  (s/def :a/z any?)
+  (s/def :b/x any?)
+  (s/def :b/y any?)
+  (s/def :b/z any?)
+  (is (= {:req [:a/y :a/z :b/x :b/y :b/z], :opt []}
          (spec->spec-keys '(or :a (keys :req [:a/y
                                               :a/z])
                                :b (keys :req [:b/x
