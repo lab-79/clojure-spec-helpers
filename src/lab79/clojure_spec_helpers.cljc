@@ -1,5 +1,5 @@
 (ns lab79.clojure-spec-helpers
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as s]
             [clojure.test.check.generators :as gen :refer [generator?]]))
 
 (s/def ::spec-name (s/and keyword? #(contains? (s/registry) %)))

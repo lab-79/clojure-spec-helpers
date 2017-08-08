@@ -1,8 +1,8 @@
 (ns clojure-spec-helpers.core-test
   (:require [clojure.test :refer :all]
             [lab79.clojure-spec-helpers :refer :all]
-            [clojure.spec :as s]
-            [clojure.spec.test :as stest]))
+            [clojure.spec.alpha :as s]
+            [clojure.spec.test.alpha :as stest]))
 
 (doseq [x (stest/enumerate-namespace 'lab79.clojure-spec-helpers)]
   (stest/instrument x))
