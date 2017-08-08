@@ -6,5 +6,5 @@
   :source-paths ["src"]
   :test-paths ["test"]
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
-                 [org.clojure/clojurescript "1.9.521"]
+                 [org.clojure/clojurescript "1.9.854"]
                  [org.clojure/test.check "0.9.0"]])
