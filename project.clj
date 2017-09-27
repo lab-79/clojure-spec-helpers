@@ -1,4 +1,4 @@
-(defproject lab79/clojure-spec-helpers "1.1.0"
+(defproject lab79/clojure-spec-helpers "1.1.1-SNAPSHOT"
   :description "Helper functions for clojure.spec"
   :url "https://github.com/lab-79/clojure-spec-helpers"
   :license {:name "MIT License"
