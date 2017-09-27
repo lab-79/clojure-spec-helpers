@@ -9,7 +9,8 @@
                     :coll-form ::coll-form
                     :and-form ::and-form
                     :merge-desc ::merge-desc
-                    :or-desc ::or-desc))
+                    :or-desc ::or-desc
+                    :quoted-fn ::quoted-fn))
 
 (s/def ::keys-form (s/cat :macro #{'keys}
                           :args (s/keys* :opt-un [::req ::opt])))
@@ -30,8 +31,7 @@
                                           :keys-form ::keys-form
                                           :merge-desc ::merge-desc
                                           :pred symbol?
-                                          :quoted-fn (s/cat :fn #{'fn}
-                                                            :rest (s/+ any?))
+                                          :quoted-fn ::quoted-fn
                                           :comp-fn (s/cat :comp #{'comp}
                                                           :rest (s/+ any?))))))
 
@@ -103,22 +103,28 @@
     ::or-desc
     (let [out (s/conform ::or-desc spec-form)
           rest (:rest out)]
-      (reduce (fn [spec-keys {[type spec-name-or-form] :spec}]
-                (let [{:keys [req opt]}
-                      (condp = type
-                        :spec-name (extract-spec-keys spec-name-or-form)
-                        (let [matching-spec (condp = type
-                                              :keys-form ::keys-form
-                                              :coll-form ::coll-form
-                                              :and-form ::and-form
-                                              :merge-desc ::merge-desc
-                                              :or-desc ::or-desc)]
-                          (spec->spec-keys (s/unform matching-spec spec-name-or-form))))]
-                  (-> spec-keys
-                      (update :req into req)
-                      (update :opt into opt))))
-              {:req [] :opt []}
-              rest))
+      (->> rest
+           (remove (fn [{[type _] :spec}] (= :quoted-fn type)))
+           ((fn [x]
+              (if (empty? x)
+                (throw (ex-info "The spec should generate a map or collection of maps."
+                       {:spec spec-form}))
+                x)))
+           (reduce
+             (fn [spec-keys {[type spec-name-or-form] :spec}]
+               (let [{:keys [req opt]}
+                     (condp = type
+                       :spec-name (extract-spec-keys spec-name-or-form)
+                       (let [matching-spec (condp = type
+                                             :keys-form ::keys-form
+                                             :coll-form ::coll-form
+                                             :and-form ::and-form
+                                             :merge-desc ::merge-desc)]
+                         (spec->spec-keys (s/unform matching-spec spec-name-or-form))))]
+                 (-> spec-keys
+                     (update :req into req)
+                     (update :opt into opt))))
+              {:req [] :opt []})))
 
     ::merge-desc
     (let [out (s/conform ::merge-desc spec-form)
