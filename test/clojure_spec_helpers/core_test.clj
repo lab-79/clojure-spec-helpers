@@ -151,7 +151,22 @@
     (is (thrown-with-msg?
           clojure.lang.ExceptionInfo
           #"The spec should generate a map or collection of maps"
-          (extract-spec-keys :merge/with-fn-only)))))
+          (extract-spec-keys :merge/with-fn-only))))
+
+  (testing "should not fail with an or that includes a fn pred + keys"
+    (s/def :or/with-fn&keys
+      (s/or :pred (fn [x] true)
+            :keys (s/keys :req [:x/x])))
+    (is (= [:x/x] (:req (extract-spec-keys :or/with-fn&keys)))))
+
+  (testing "should fail with an or that includes only fn preds"
+    (s/def :or/only-fns
+      (s/or :pred1 (fn [x] true)
+            :pred2 (fn [x] true)))
+    (is (thrown-with-msg?
+          clojure.lang.ExceptionInfo
+          #"The spec should generate a map or collection of maps"
+          (extract-spec-keys :or/only-fns)))))
 
 (deftest test-is-collection-spec?
   (testing "should return true for coll-of"
