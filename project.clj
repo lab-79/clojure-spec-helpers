@@ -5,6 +5,6 @@
             :url "http://www.opensource.org/licenses/mit-license.php"}
   :source-paths ["src"]
   :test-paths ["test"]
-  :dependencies [[org.clojure/clojure "1.9.0-alpha19"]
+  :dependencies [[org.clojure/clojure "1.9.0-beta1"]
                  [org.clojure/clojurescript "1.9.908"]
                  [org.clojure/test.check "0.9.0"]])
