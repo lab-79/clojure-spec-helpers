@@ -36,12 +36,15 @@
                                                           :rest (s/+ any?))))))
 
 (s/def ::merge-desc (s/cat :macro #{'merge}
-                           :rest (s/+ (s/alt :spec-name keyword?
-                                             :spec-desc list?))))
+                           :rest (s/+ (s/or :spec-name keyword?
+                                            :spec-desc list?))))
 
 (s/def ::or-desc (s/cat :macro #{'or}
                         :rest (s/+ (s/cat :tag keyword?
                                           :spec ::desc))))
+
+(s/def ::quoted-fn (s/cat :fn #{'fn}
+                          :rest (s/+ any?)))
 
 (s/def ::gen-overrides (s/? (s/map-of ::spec-name
                                       ::gfn)))
@@ -121,10 +124,17 @@
     (let [out (s/conform ::merge-desc spec-form)
           rest (:rest out)]
       (->> rest
+           (filter (fn [[_ spec-name-or-form]]
+                     (not (s/valid? ::quoted-fn spec-name-or-form))))
            (map (fn [[type spec-name-or-form]]
                   (condp = type
                     :spec-name (extract-spec-keys spec-name-or-form)
                     :spec-desc (spec->spec-keys spec-name-or-form))))
+           ((fn [x]
+              (if (empty? x)
+                (throw (ex-info "The spec should generate a map or collection of maps."
+                       {:spec spec-form}))
+                x)))
            (apply merge-with into)))
 
     ;else
