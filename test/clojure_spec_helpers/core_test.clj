@@ -138,7 +138,20 @@
             :or/form (s/keys :opt [:or-x/kw])))
     (let [out (extract-spec-keys :or/root)]
       (is (= [:or-x/kw :or-y/kw] (:req out)))
-      (is (= [:or-x/kw] (:opt out))))))
+      (is (= [:or-x/kw] (:opt out)))))
+
+  (testing "should not fail with a merge that includes a fn pred + a keys spec"
+    (s/def :merge/with-fn&keys (s/merge
+                                 (fn [x] (#{:y/y} (:x/x x)))
+                                 (s/keys :req [:x/x])))
+    (is (= [:x/x] (:req (extract-spec-keys :merge/with-fn&keys)))))
+
+  (testing "should fail with a merge that includes only a fn pred"
+    (s/def :merge/with-fn-only (s/merge (fn [x] true)))
+    (is (thrown-with-msg?
+          clojure.lang.ExceptionInfo
+          #"The spec should generate a map or collection of maps"
+          (extract-spec-keys :merge/with-fn-only)))))
 
 (deftest test-is-collection-spec?
   (testing "should return true for coll-of"
